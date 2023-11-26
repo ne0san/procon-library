@@ -63,7 +63,7 @@ impl WeightedUnionFind {
     /// - nodeが属するグループのsize
     /// - nodeからrootまでのweight
     /// nodeの親をroot_nodeに再設定 (経路圧縮)
-    fn get_root_size_weight(&mut self, node: usize) -> (usize, usize, isize) {
+    pub fn get_root_size_weight(&mut self, node: usize) -> (usize, usize, isize) {
         let mut node_tmp: usize = node;
         let mut weight_tmp: isize = 0;
         loop {
