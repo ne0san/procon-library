@@ -1,0 +1,6 @@
+{
+  "recommendations": [
+    "rust-lang.rust-analyzer", // rust analyzer
+    "vadimcn.vscode-lldb" // CodeLLDB
+  ]
+}
