@@ -49,7 +49,7 @@ impl UnionFind {
 
     /// nodeのroot_nodeとnodeが属するグループのsizeを取得
     /// nodeの親をroot_nodeに再設定 (経路圧縮)
-    fn get_root_and_size(&mut self, node: usize) -> (usize, usize) {
+    pub fn get_root_and_size(&mut self, node: usize) -> (usize, usize) {
         let mut node_tmp: usize = node;
         loop {
             match self.graph[node_tmp] {
