@@ -60,7 +60,7 @@ macro_rules! replace_max {
 macro_rules! debug_print {
     ($($v:expr),* $(,)*) => {
         #[cfg(debug_assertions)]
-        eprintln!(concat!($(stringify!($v), ": {:?} "),*, "\t"), $(&$v),*);
+        eprintln!(concat!("| ", $(stringify!($v), ": {:?} | "),*), $(&$v),*);
     };
 }
 
