@@ -9,7 +9,7 @@ macro_rules! min_value {
         {
             let mut temp_min = $f;
             $(
-                temp_min = temp_min.min($x);
+                temp_min = min(temp_min, $x);
             )*
             temp_min
         }
@@ -23,7 +23,7 @@ macro_rules! max_value {
         {
             let mut temp_max = $f;
             $(
-                temp_max = temp_max.max($x);
+                temp_max = max(temp_max, $x);
             )*
             temp_max
         }
@@ -37,7 +37,7 @@ macro_rules! replace_min {
         {
             $t;
             $(
-                $t = $t.min($x);
+                $t = min($t, $x);
             )*
         }
     };
@@ -50,7 +50,7 @@ macro_rules! replace_max {
         {
             $t;
             $(
-                $t = $t.max($x);
+                $t = max($t, $x);
             )*
         }
     };
