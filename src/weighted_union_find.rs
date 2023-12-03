@@ -83,3 +83,44 @@ impl WeightedUnionFind {
         }
     }
 }
+// WeightedUnionFindのテスト
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_new() {
+        let uf = WeightedUnionFind::new(5);
+        assert_eq!(uf.get_root_count(), 5);
+    }
+
+    #[test]
+    fn test_merge() {
+        let mut uf = WeightedUnionFind::new(5);
+        assert!(uf.merge(0, 1, 2));
+        assert!(uf.merge(2, 3, 3));
+        assert!(uf.merge(1, 3, 5));
+        assert!(!uf.merge(1, 3, 3));
+        assert_eq!(uf.get_root_count(), 2);
+    }
+
+    #[test]
+    fn test_same() {
+        let mut uf = WeightedUnionFind::new(5);
+        uf.merge(0, 1, 2);
+        uf.merge(2, 3, 3);
+        assert!(uf.same(0, 1));
+        assert!(!uf.same(1, 4));
+    }
+
+    #[test]
+    fn test_get_root_size_weight() {
+        let mut uf = WeightedUnionFind::new(5);
+        uf.merge(0, 1, 2);
+        uf.merge(2, 3, 3);
+        let (root, size, weight) = uf.get_root_size_weight(3);
+        assert_eq!(root, 2);
+        assert_eq!(size, 2);
+        assert_eq!(weight, 3);
+    }
+}

@@ -64,3 +64,33 @@ impl UnionFind {
         }
     }
 }
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_new_union_find() {
+        let uf = UnionFind::new(5);
+        assert_eq!(uf.get_root_count(), 5);
+    }
+
+    #[test]
+    fn test_merge_and_same() {
+        let mut uf = UnionFind::new(5);
+        uf.merge(0, 1);
+        uf.merge(1, 2);
+        uf.merge(3, 4);
+        assert!(uf.same(0, 2));
+        assert!(!uf.same(0, 3));
+    }
+
+    #[test]
+    fn test_get_root_and_size() {
+        let mut uf = UnionFind::new(5);
+        uf.merge(0, 1);
+        uf.merge(1, 2);
+        uf.merge(3, 4);
+        assert!(matches!(uf.get_root_and_size(0), (0, 3) | (1, 3) | (2, 3)));
+        assert!(matches!(uf.get_root_and_size(3), (3, 2) | (4, 2)));
+    }
+}

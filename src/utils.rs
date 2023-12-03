@@ -35,7 +35,6 @@ macro_rules! max_value {
 macro_rules! replace_min {
     ($t:expr; $( $x:expr ),* ) => {
         {
-            $t;
             $(
                 $t = $t.min($x);
             )*
@@ -48,7 +47,6 @@ macro_rules! replace_min {
 macro_rules! replace_max {
     ($t:expr; $( $x:expr ),* ) => {
         {
-            $t;
             $(
                 $t = $t.max($x);
             )*
@@ -185,4 +183,82 @@ where
             }
         }
     }
+}
+// min_value マクロのテスト
+#[test]
+fn test_min_value_macro() {
+    assert_eq!(min_value!(3, 5, 2, 8), 2);
+    assert_eq!(min_value!(10, 5, 20, 8), 5);
+}
+
+// max_value マクロのテスト
+#[test]
+fn test_max_value_macro() {
+    assert_eq!(max_value!(3, 5, 2, 8), 8);
+    assert_eq!(max_value!(10, 5, 20, 8), 20);
+}
+
+// replace_min マクロのテスト
+#[test]
+fn test_replace_min_macro() {
+    let mut value = 10;
+    replace_min!(value; 5, 8, 12);
+    assert_eq!(value, 5);
+}
+
+// replace_max マクロのテスト
+#[test]
+fn test_replace_max_macro() {
+    let mut value = 10;
+    replace_max!(value; 5, 8, 12);
+    assert_eq!(value, 12);
+}
+
+// debug_print マクロのテスト
+#[test]
+fn test_debug_print_macro() {
+    // デバッグモードでのみ出力されるため、テストは省略
+}
+
+// print_vector 関数のテスト
+#[test]
+fn test_print_vector_function() {
+    let vec = vec![1, 2, 3, 4, 5];
+    let delimiter = ",";
+    print_vector(&vec, &delimiter);
+    // 標準出力を確認する必要があるため、テストは省略
+}
+
+// print_2d_vector 関数のテスト
+#[test]
+fn test_print_2d_vector_function() {
+    let grid = vec![vec![1, 2, 3], vec![4, 5, 6], vec![7, 8, 9]];
+    let delimiter = ",";
+    print_2d_vector(&grid, &delimiter);
+    // 標準出力を確認する必要があるため、テストは省略
+}
+
+// cmp_and_replace_value_in_hashmap 関数のテスト
+#[test]
+fn test_cmp_and_replace_value_in_hashmap_function() {
+    let mut map = HashMap::new();
+    map.insert(1, 10);
+    cmp_and_replace_value_in_hashmap(&mut map, &1, 5, |a, b| a < b);
+    assert_eq!(map.get(&1), Some(&5));
+}
+
+// bin_sch 関数のテスト
+#[test]
+fn test_bin_sch_function() {
+    let arr = vec![1, 3, 5, 7, 9];
+    let result = bin_sch(0, arr.len() - 1, |mid| arr[mid] <= 5);
+    assert!(matches!(result, (2, 2) | (2, 3)));
+}
+
+// marge_sort 関数のテスト
+#[test]
+fn test_marge_sort_function() {
+    let arr = vec![3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5];
+    let sorted = marge_sort(&arr, |a, b| a <= b);
+    assert_eq!(sorted, Some(vec![1, 1, 2, 3, 3, 4, 5, 5, 5, 6, 9]));
 }
