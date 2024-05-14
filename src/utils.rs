@@ -139,7 +139,7 @@ where
 /// # Arguments
 /// * `v` - ソートを行いたい任意の型のベクタ
 /// * `cmp` - 比較用クロージャ |a, b| でaを先頭側に置きたい時trueを返す
-pub fn marge_sort<T: Clone, F>(v: &VecDeque<T>, mut cmp: F) -> Option<VecDeque<T>>
+pub fn merge_sort<T: Clone, F>(v: &VecDeque<T>, mut cmp: F) -> Option<VecDeque<T>>
 where
     F: FnMut(&T, &T) -> bool,
 {
@@ -150,17 +150,17 @@ where
     while q.len() > 1 || !next_q.is_empty() {
         match (q.pop_front(), q.pop_front()) {
             (Some(mut first), Some(mut second)) => {
-                let mut marged: VecDeque<T> = VecDeque::new();
+                let mut merged: VecDeque<T> = VecDeque::new();
                 while !first.is_empty() && !second.is_empty() {
-                    marged.push_back(if cmp(&first[0], &second[0]) {
+                    merged.push_back(if cmp(&first[0], &second[0]) {
                         first.pop_front().unwrap()
                     } else {
                         second.pop_front().unwrap()
                     });
                 }
-                marged.append(&mut first);
-                marged.append(&mut second);
-                next_q.push_back(marged);
+                merged.append(&mut first);
+                merged.append(&mut second);
+                next_q.push_back(merged);
             }
             (Some(first), None) => {
                 next_q.push_back(first);
@@ -181,7 +181,7 @@ where
 /// # Arguments
 /// * `v` - ソートを行いたい任意の型のベクタ
 /// * `cmp` - 比較用クロージャ |a, b| でaを先頭側に置きたい時trueを返す
-pub fn marge_sort_unstable<T: Clone, F>(v: &VecDeque<T>, mut cmp: F) -> Option<VecDeque<T>>
+pub fn merge_sort_unstable<T: Clone, F>(v: &VecDeque<T>, mut cmp: F) -> Option<VecDeque<T>>
 where
     F: FnMut(&T, &T) -> bool,
 {
@@ -189,17 +189,17 @@ where
     while q.len() > 1 {
         match (q.pop_front(), q.pop_front()) {
             (Some(mut first), Some(mut second)) => {
-                let mut marged: VecDeque<T> = VecDeque::new();
+                let mut merged: VecDeque<T> = VecDeque::new();
                 while !first.is_empty() && !second.is_empty() {
-                    marged.push_back(if cmp(&first[0], &second[0]) {
+                    merged.push_back(if cmp(&first[0], &second[0]) {
                         first.pop_front().unwrap()
                     } else {
                         second.pop_front().unwrap()
                     });
                 }
-                marged.append(&mut first);
-                marged.append(&mut second);
-                q.push_back(marged);
+                merged.append(&mut first);
+                merged.append(&mut second);
+                q.push_back(merged);
             }
             _ => unreachable!(),
         }
@@ -277,17 +277,17 @@ fn test_bin_sch_function() {
     assert!(matches!(result, (2, 2) | (2, 3)));
 }
 
-// marge_sort 関数のテスト
+// merge_sort 関数のテスト
 #[test]
-fn test_marge_sort_function() {
+fn test_merge_sort_function() {
     // 奇数個
     let v: VecDeque<i32> = vec![3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5].into();
-    let sorted = marge_sort(&v, |a, b| a <= b);
+    let sorted = merge_sort(&v, |a, b| a <= b);
     assert_eq!(sorted, Some(vec![1, 1, 2, 3, 3, 4, 5, 5, 5, 6, 9].into()));
 
     // 偶数個
     let v: VecDeque<i32> = vec![3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5, 7].into();
-    let sorted = marge_sort(&v, |a, b| a <= b);
+    let sorted = merge_sort(&v, |a, b| a <= b);
     assert_eq!(
         sorted,
         Some(vec![1, 1, 2, 3, 3, 4, 5, 5, 5, 6, 7, 9].into())
@@ -295,7 +295,7 @@ fn test_marge_sort_function() {
 
     // 空
     let v: VecDeque<i32> = VecDeque::new();
-    let sorted = marge_sort(&v, |a, b| a <= b);
+    let sorted = merge_sort(&v, |a, b| a <= b);
     assert_eq!(sorted, None);
 
     // 安定ソートの確認 偶数個
@@ -312,7 +312,7 @@ fn test_marge_sort_function() {
         (5, 10),
     ]
     .into();
-    let sorted_with_index = marge_sort(&v_with_index, |&(a, _), &(b, _)| a <= b);
+    let sorted_with_index = merge_sort(&v_with_index, |&(a, _), &(b, _)| a <= b);
     assert_eq!(
         sorted_with_index,
         Some(
@@ -331,7 +331,7 @@ fn test_marge_sort_function() {
             .into()
         )
     );
-    let sorted_with_index = marge_sort_unstable(&v_with_index, |&(a, _), &(b, _)| a <= b);
+    let sorted_with_index = merge_sort_unstable(&v_with_index, |&(a, _), &(b, _)| a <= b);
     assert_ne!(
         sorted_with_index,
         Some(
@@ -366,7 +366,7 @@ fn test_marge_sort_function() {
         (5, 10),
     ]
     .into();
-    let sorted_with_index = marge_sort(&v_with_index, |&(a, _), &(b, _)| a <= b);
+    let sorted_with_index = merge_sort(&v_with_index, |&(a, _), &(b, _)| a <= b);
     assert_eq!(
         sorted_with_index,
         Some(
@@ -386,7 +386,7 @@ fn test_marge_sort_function() {
             .into()
         )
     );
-    let sorted_with_index = marge_sort_unstable(&v_with_index, |&(a, _), &(b, _)| a <= b);
+    let sorted_with_index = merge_sort_unstable(&v_with_index, |&(a, _), &(b, _)| a <= b);
     assert_ne!(
         sorted_with_index,
         Some(
@@ -408,17 +408,17 @@ fn test_marge_sort_function() {
     );
 }
 
-// marge_sort_unstable 関数のテスト
+// merge_sort_unstable 関数のテスト
 #[test]
-fn test_marge_sort_unstable_function() {
+fn test_merge_sort_unstable_function() {
     // 奇数個
     let v: VecDeque<i32> = vec![3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5].into();
-    let sorted = marge_sort_unstable(&v, |a, b| a <= b);
+    let sorted = merge_sort_unstable(&v, |a, b| a <= b);
     assert_eq!(sorted, Some(vec![1, 1, 2, 3, 3, 4, 5, 5, 5, 6, 9].into()));
 
     // 偶数個
     let v: VecDeque<i32> = vec![3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5, 7].into();
-    let sorted = marge_sort_unstable(&v, |a, b| a <= b);
+    let sorted = merge_sort_unstable(&v, |a, b| a <= b);
     assert_eq!(
         sorted,
         Some(vec![1, 1, 2, 3, 3, 4, 5, 5, 5, 6, 7, 9].into())
@@ -426,6 +426,6 @@ fn test_marge_sort_unstable_function() {
 
     // 空
     let v: VecDeque<i32> = VecDeque::new();
-    let sorted = marge_sort_unstable(&v, |a, b| a <= b);
+    let sorted = merge_sort_unstable(&v, |a, b| a <= b);
     assert_eq!(sorted, None);
 }
