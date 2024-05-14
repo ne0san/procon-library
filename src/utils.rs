@@ -147,8 +147,7 @@ where
     // マージ済みVecDequeのVecDeque
     let mut q: VecDeque<VecDeque<T>> = (*v).clone().into_iter().map(|x| vec![x].into()).collect();
     let mut next_q: VecDeque<VecDeque<T>> = VecDeque::new();
-
-    loop {
+    while q.len() > 1 || !next_q.is_empty() {
         match (q.pop_front(), q.pop_front()) {
             (Some(mut first), Some(mut second)) => {
                 let mut marged: VecDeque<T> = VecDeque::new();
@@ -164,21 +163,16 @@ where
                 next_q.push_back(marged);
             }
             (Some(first), None) => {
-                if next_q.is_empty() {
-                    return Some(first);
-                }
                 next_q.push_back(first);
                 swap(&mut q, &mut next_q);
             }
             (None, None) => {
-                if next_q.is_empty() {
-                    return None;
-                }
                 swap(&mut q, &mut next_q);
             }
             _ => unreachable!(),
         }
     }
+    q.pop_front()
 }
 // min_value マクロのテスト
 #[test]
@@ -254,7 +248,21 @@ fn test_bin_sch_function() {
 // marge_sort 関数のテスト
 #[test]
 fn test_marge_sort_function() {
+    // 奇数個
     let v: VecDeque<i32> = vec![3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5].into();
     let sorted = marge_sort(&v, |a, b| a <= b);
     assert_eq!(sorted, Some(vec![1, 1, 2, 3, 3, 4, 5, 5, 5, 6, 9].into()));
+
+    // 偶数個
+    let v: VecDeque<i32> = vec![3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5, 7].into();
+    let sorted = marge_sort(&v, |a, b| a <= b);
+    assert_eq!(
+        sorted,
+        Some(vec![1, 1, 2, 3, 3, 4, 5, 5, 5, 6, 7, 9].into())
+    );
+
+    // 空
+    let v: VecDeque<i32> = VecDeque::new();
+    let sorted = marge_sort(&v, |a, b| a <= b);
+    assert_eq!(sorted, None);
 }
