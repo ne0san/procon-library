@@ -1,6 +1,7 @@
 use std::collections::{HashMap, VecDeque};
 use std::fmt::Display;
 use std::hash::Hash;
+use std::mem::swap;
 
 /// 複数の引数のうち最小値を返す
 #[macro_export]
@@ -136,51 +137,46 @@ where
 /// ソート済みベクタを返却
 ///
 /// # Arguments
-/// * `arr` - ソートを行いたい任意の型のベクタ
+/// * `v` - ソートを行いたい任意の型のベクタ
 /// * `cmp` - 比較用クロージャ |a, b| でaを先頭側に置きたい時trueを返す
-pub fn marge_sort<T: Clone, F>(arr: &Vec<T>, mut cmp: F) -> Option<Vec<T>>
+pub fn marge_sort<T: Clone, F>(v: &VecDeque<T>, mut cmp: F) -> Option<VecDeque<T>>
 where
     F: FnMut(&T, &T) -> bool,
 {
-    if arr.is_empty() {
-        // 空であるとき、Noneを返却
-        None
-    } else {
-        // 「0usizeと「対象Vecの各要素それぞれを単一の要素として持つVecDequeue」」のタプルのVecDequeuを作成
-        // マージ済みVecDequeueのVecDequeue
-        let mut q: VecDeque<(bool, VecDeque<T>)> = (*arr)
-            .clone()
-            .into_iter()
-            .map(|x| (false, vec![x].into()))
-            .collect();
+    // 「対象VecDequeの各要素それぞれを単一の要素として持つVecDequeue」のVecDequeを作成
+    // マージ済みVecDequeのVecDeque
+    let mut q: VecDeque<VecDeque<T>> = (*v).clone().into_iter().map(|x| vec![x].into()).collect();
+    let mut next_q: VecDeque<VecDeque<T>> = VecDeque::new();
 
-        loop {
-            let mut left: (bool, VecDeque<T>) = q.pop_front().unwrap();
-            if !q.is_empty() {
-                // マージ済みVecDequeueが複数の時
-                let next_loop: bool = !left.0;
-                if left.0 == q[0].0 {
-                    // 先頭二つのマージ済みVecDequeueが同一ループであるとき、それらをマージし、後端にpush
-                    let mut right: (bool, VecDeque<T>) = q.pop_front().unwrap();
-                    let mut marged: (bool, VecDeque<T>) = (next_loop, VecDeque::new());
-                    while !left.1.is_empty() && !right.1.is_empty() {
-                        marged.1.push_back(if cmp(&left.1[0], &right.1[0]) {
-                            left.1.pop_front().unwrap()
-                        } else {
-                            right.1.pop_front().unwrap()
-                        });
-                    }
-                    marged.1.append(&mut left.1);
-                    marged.1.append(&mut right.1);
-                    q.push_back(marged);
-                } else {
-                    // 先頭二つのマージ済みVecDequeueが同一ループでない時、ループカウントをインクリメントし、後端にpush
-                    q.push_back((next_loop, left.1));
+    loop {
+        match (q.pop_front(), q.pop_front()) {
+            (Some(mut first), Some(mut second)) => {
+                let mut marged: VecDeque<T> = VecDeque::new();
+                while !first.is_empty() && !second.is_empty() {
+                    marged.push_back(if cmp(&first[0], &second[0]) {
+                        first.pop_front().unwrap()
+                    } else {
+                        second.pop_front().unwrap()
+                    });
                 }
-            } else {
-                // マージ済みVecDequeueが単一であるとき、それをVecに変換して返却
-                return Some(left.1.into());
+                marged.append(&mut first);
+                marged.append(&mut second);
+                next_q.push_back(marged);
             }
+            (Some(first), None) => {
+                if next_q.is_empty() {
+                    return Some(first);
+                }
+                next_q.push_back(first);
+                swap(&mut q, &mut next_q);
+            }
+            (None, None) => {
+                if next_q.is_empty() {
+                    return None;
+                }
+                swap(&mut q, &mut next_q);
+            }
+            _ => unreachable!(),
         }
     }
 }
@@ -250,15 +246,15 @@ fn test_cmp_and_replace_value_in_hashmap_function() {
 // bin_sch 関数のテスト
 #[test]
 fn test_bin_sch_function() {
-    let arr = vec![1, 3, 5, 7, 9];
-    let result = bin_sch(0, arr.len() - 1, |mid| arr[mid] <= 5);
+    let v = vec![1, 3, 5, 7, 9];
+    let result = bin_sch(0, v.len() - 1, |mid| v[mid] <= 5);
     assert!(matches!(result, (2, 2) | (2, 3)));
 }
 
 // marge_sort 関数のテスト
 #[test]
 fn test_marge_sort_function() {
-    let arr = vec![3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5];
-    let sorted = marge_sort(&arr, |a, b| a <= b);
-    assert_eq!(sorted, Some(vec![1, 1, 2, 3, 3, 4, 5, 5, 5, 6, 9]));
+    let v: VecDeque<i32> = vec![3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5].into();
+    let sorted = marge_sort(&v, |a, b| a <= b);
+    assert_eq!(sorted, Some(vec![1, 1, 2, 3, 3, 4, 5, 5, 5, 6, 9].into()));
 }
