@@ -122,7 +122,7 @@ where
 {
     let mut ok: isize = edge_l as isize - 1isize;
     let mut ng: isize = (edge_r + 1) as isize;
-    while (ng - ok).abs() > 1 {
+    while ng - ok > 1 {
         let mid: isize = ((ok + ng) / 2) as isize;
         if judge(mid as usize) {
             ok = mid;
