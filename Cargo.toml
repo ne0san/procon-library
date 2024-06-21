@@ -1,6 +1,6 @@
 [package]
 name = "procon-library"
-version = "0.1.5"
+version = "0.1.6"
 edition = "2018"
 authors = ["ne0san"]
 license = "Apache-2.0"
