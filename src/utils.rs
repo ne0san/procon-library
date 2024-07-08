@@ -206,6 +206,19 @@ where
     }
     q.pop_front()
 }
+
+/// 10進数で各桁の和を算出
+pub fn sum_digits(mut v: usize) -> usize {
+    let mut sum = 0;
+    sum += v % 10;
+    v /= 10;
+    while v > 0 {
+        sum += v % 10;
+        v /= 10;
+    }
+    sum
+}
+
 // min_value マクロのテスト
 #[test]
 fn test_min_value_macro() {
@@ -428,4 +441,19 @@ fn test_merge_sort_unstable_function() {
     let v: VecDeque<i32> = VecDeque::new();
     let sorted = merge_sort_unstable(&v, |a, b| a <= b);
     assert_eq!(sorted, None);
+}
+
+#[test]
+fn test_sum_digits() {
+    let res = sum_digits(5);
+    assert_eq!(5, res);
+
+    let res = sum_digits(10);
+    assert_eq!(1, res);
+
+    let res = sum_digits(18);
+    assert_eq!(9, res);
+
+    let res = sum_digits(457);
+    assert_eq!(16, res);
 }
