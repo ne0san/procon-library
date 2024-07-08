@@ -113,15 +113,15 @@ pub fn cmp_and_replace_value_in_hashmap<T, U, F>(
 /// 二分探索関数
 ///
 /// # Arguments
-/// * `left` - 左端インデックス
-/// * `right` - 右端インデックス
+/// * `edge_l` - 橋インデックス片方
+/// * `edge_r` - 橋インデックスもう片方
 /// * `judge` - midを元に判定するクロージャ okの場合true
-pub fn bin_sch<F>(left: usize, right: usize, mut judge: F) -> (isize, isize)
+pub fn bin_sch<F>(edge_l: usize, edge_r: usize, mut judge: F) -> isize
 where
     F: FnMut(usize) -> bool,
 {
-    let mut ok: isize = left as isize - 1isize;
-    let mut ng: isize = (right + 1) as isize;
+    let mut ok: isize = edge_l as isize - 1isize;
+    let mut ng: isize = (edge_r + 1) as isize;
     while ng - ok > 1 {
         let mid: isize = ((ok + ng) / 2) as isize;
         if judge(mid as usize) {
@@ -130,7 +130,7 @@ where
             ng = mid;
         }
     }
-    (ok, ng)
+    ok
 }
 
 /// 反復マージソート関数
@@ -287,7 +287,7 @@ fn test_cmp_and_replace_value_in_hashmap_function() {
 fn test_bin_sch_function() {
     let v = vec![1, 3, 5, 7, 9];
     let result = bin_sch(0, v.len() - 1, |mid| v[mid] <= 5);
-    assert!(matches!(result, (2, 2) | (2, 3)));
+    assert!(matches!(result, 2));
 }
 
 // merge_sort 関数のテスト
