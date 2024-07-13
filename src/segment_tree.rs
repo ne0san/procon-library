@@ -70,7 +70,6 @@ where
     }
     pub fn query(&self, left: usize, right: usize) -> T {
         // 対象範囲を列挙して全てにcal
-        // self.cells[0][0]
         // 検査対象の(row,col)
         let mut vals = vec![];
         let mut que = VecDeque::from_iter(vec![(self.cells.len() - 1, 0)]);
@@ -89,7 +88,10 @@ where
                 que.push_back((c_row - 1, c_col * 2 + 1));
             }
         }
-        vals.iter().fold(vals[0], |res, &v| (self.cal)(res, v))
+        match vals.split_first() {
+            Some((&first, rest)) => rest.iter().fold(first, |res, &v| (self.cal)(res, v)),
+            None => unreachable!(),
+        }
     }
     // セルが含まれる区間を算出
     fn cell_range(&self, row: usize, column: usize) -> (usize, usize) {
