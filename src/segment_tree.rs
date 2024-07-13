@@ -1,6 +1,5 @@
 use std::collections::VecDeque;
 use std::fmt::Debug;
-use std::sync::BarrierWaitResult;
 
 #[derive(Debug, Clone)]
 pub struct SegmentTree<T: Clone + Debug + Copy + PartialEq, F>
@@ -53,10 +52,14 @@ where
         for i in 1..self.cells.len() {
             let b_pos = pos / (1 << i);
             let before = self.cells[i][b_pos];
-            self.cells[i][b_pos] = (self.cal)(
-                self.cells[i - 1][b_pos * 2],
-                self.cells[i - 1][b_pos * 2 + 1],
-            );
+            if b_pos * 2 + 1 >= self.cells[i - 1].len() {
+                self.cells[i][b_pos] = self.cells[i - 1][b_pos * 2]
+            } else {
+                self.cells[i][b_pos] = (self.cal)(
+                    self.cells[i - 1][b_pos * 2],
+                    self.cells[i - 1][b_pos * 2 + 1],
+                );
+            }
             if self.cells[i][b_pos] == before {
                 break;
             }
@@ -67,6 +70,9 @@ where
     pub fn query(&self, left: usize, right: usize) -> T {
         // 対象範囲を列挙して全てにcal
         self.cells[0][0]
+        // let vals = vec![];
+        // left ~ rightを完全に含むようにリストアップ
+        // let cells = self.cells.iter().rev();
     }
 }
 
@@ -142,6 +148,17 @@ mod tests {
                 vec![2, 5, 2],
                 vec![2, 2],
                 vec![2]
+            ]
+        );
+        st.update(8, 0);
+        assert_eq!(
+            st.cells,
+            vec![
+                vec![2555, 2, 3, 4, 5, 6, 7, 8, 0],
+                vec![2, 3, 5, 7, 0],
+                vec![2, 5, 0],
+                vec![2, 0],
+                vec![0]
             ]
         );
     }
