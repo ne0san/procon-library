@@ -1,5 +1,6 @@
 use std::collections::VecDeque;
 use std::fmt::Debug;
+use std::iter::FromIterator;
 
 #[derive(Debug, Clone)]
 pub struct SegmentTree<T: Clone + Debug + Copy + PartialEq, F>
@@ -69,10 +70,34 @@ where
     }
     pub fn query(&self, left: usize, right: usize) -> T {
         // 対象範囲を列挙して全てにcal
-        self.cells[0][0]
-        // let vals = vec![];
-        // left ~ rightを完全に含むようにリストアップ
-        // let cells = self.cells.iter().rev();
+        // self.cells[0][0]
+        // 検査対象の(row,col)
+        let mut vals = vec![];
+        let mut que = VecDeque::from_iter(vec![(self.cells.len() - 1, 0)]);
+        while let Some((c_row, c_col)) = que.pop_front() {
+            let (c_l, c_r) = self.cell_range(c_row, c_col);
+            if c_l > right || c_r < left {
+                // チェック対象セルが、確認範囲に完全に含まれない場合
+                continue;
+            } else if c_l >= left && c_r <= right {
+                // チェック対象セルが、完全に含まれる場合
+                vals.push(self.cells[c_row][c_col]);
+                continue;
+            } else if c_row > 0 {
+                //半端に含まれている場合、より細かいセルをチェック対象に
+                que.push_back((c_row - 1, c_col * 2));
+                que.push_back((c_row - 1, c_col * 2 + 1));
+            }
+        }
+        vals.iter().fold(vals[0], |res, &v| (self.cal)(res, v))
+    }
+    // セルが含まれる区間を算出
+    fn cell_range(&self, row: usize, column: usize) -> (usize, usize) {
+        let base = 1 << row;
+        (
+            base * column,
+            self.cells[0].len().min(base * (column + 1)) - 1,
+        )
     }
 }
 
@@ -182,5 +207,26 @@ mod tests {
         assert_eq!(st.query(3, 5), 9);
         assert_eq!(st.query(4, 8), 9);
         assert_eq!(st.query(5, 8), 8);
+    }
+    #[test]
+    fn test_cell_range() {
+        let st = SegmentTree::new(vec![1, 2, 3, 4, 5, 6, 7], |a, b| max(a, b));
+        assert_eq!(
+            st.cells,
+            vec![
+                vec![1, 2, 3, 4, 5, 6, 7],
+                vec![2, 4, 6, 7],
+                vec![4, 7],
+                vec![7]
+            ]
+        );
+        assert_eq!(st.cell_range(0, 5), (5, 5));
+        assert_eq!(st.cell_range(0, 0), (0, 0));
+        assert_eq!(st.cell_range(0, 1), (1, 1));
+        assert_eq!(st.cell_range(1, 1), (2, 3));
+        assert_eq!(st.cell_range(1, 3), (6, 6));
+        assert_eq!(st.cell_range(2, 0), (0, 3));
+        assert_eq!(st.cell_range(2, 1), (4, 6));
+        assert_eq!(st.cell_range(3, 0), (0, 6));
     }
 }
